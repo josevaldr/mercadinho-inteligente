@@ -76,19 +76,6 @@ Resposta: `{"mensagem":"API do Mercadinho no ar!"}`
 
 ---
 
-## Endpoints
-
-Base: `http://localhost:3000/api/products`
-
-| Método | Rota | O que faz | Sucesso |
-|---|---|---|---|
-| `GET` | `/` | lista todos os produtos (mais recentes primeiro) | `200` + array |
-| `GET` | `/:id` | busca um produto pelo id | `200` + objeto |
-| `POST` | `/` | cadastra um produto | `201` + objeto criado |
-| `PUT` | `/:id` | atualiza um produto | `200` + objeto atualizado |
-| `DELETE` | `/:id` | remove um produto | `200` + `{ "mensagem": "Produto removido." }` |
-
-
 ## Repositórios da entrega
 
 - **Backend (este repositório):** `https://github.com/SEU-USUARIO/mercadinho-inteligente-api`
