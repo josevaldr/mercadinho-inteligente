@@ -6,7 +6,6 @@ ingredientes e macros de produtos pelo código de barras.
 Esta é a **API REST** que o aplicativo consome. Ela faz o CRUD completo de produtos
 salvos pelo usuário, com os dados persistidos no **MongoDB Atlas**.
 
-> Atividade Individual 06 — App Fullstack (React Native + Node.js)
 
 ---
 
@@ -20,33 +19,6 @@ salvos pelo usuário, com os dados persistidos no **MongoDB Atlas**.
 | MongoDB Atlas | banco de dados na nuvem |
 | dotenv | 17 | leitura das variáveis do arquivo `.env` |
 | cors | 2 | permite que o app acesse a API |
-
----
-
-## Estrutura do projeto
-
-```
-mercadinho-inteligente/
-├── server.js                     # ponto de entrada: middlewares, rotas e conexão com o banco
-├── package.json
-├── .env.example                  # modelo das variáveis de ambiente (sem segredos)
-├── .gitignore                    # protege o .env e o node_modules
-└── src/
-    ├── config/
-    │   └── database.js           # conexão com o MongoDB Atlas
-    ├── models/
-    │   └── Product.js            # schema do produto (validações e índice único)
-    ├── controllers/
-    │   └── productController.js  # regras de cada rota (listar, criar, editar, remover)
-    └── routes/
-        └── productRoutes.js      # define os endpoints e liga cada um ao controller
-```
-
-**Por que separado assim:** o `server.js` só liga as peças. Cada pasta tem uma responsabilidade —
-o model não conhece requisição, o controller não conhece rota e a rota não conhece banco.
-Isso deixa o código fácil de localizar quando algo dá erro.
-
----
 
 ## Como rodar
 
@@ -77,24 +49,10 @@ NODE_ENV=development
 MONGODB_URI=sua_string_de_conexao_aqui
 ```
 
-**Onde achar a string de conexão:** no painel do Atlas → seu cluster → **Connect** → **Drivers** →
-**Node.js**. Ela se parece com isto:
-
-```
-mongodb+srv://USUARIO:SENHA@cluster0.xxxxx.mongodb.net/rotulo?retryWrites=true&w=majority
-```
-
-Dois cuidados que já custaram tempo:
-
-1. **Acrescente `/rotulo` antes do `?`** — o Atlas não coloca o nome do banco. Sem ele, os dados
-   vão para o banco `test` e não aparecem onde você procura.
-2. **Libere o seu IP** em *Network Access* → *Add Current IP Address*. Sem isso a conexão fica
-   esperando e falha com `MongooseServerSelectionError`.
-
 ### 4. Rodar o servidor
 
 ```bash
-npm run dev      # reinicia sozinho ao salvar arquivos (Node 18+)
+npm run dev    
 # ou
 npm start
 ```
@@ -130,150 +88,9 @@ Base: `http://localhost:3000/api/products`
 | `PUT` | `/:id` | atualiza um produto | `200` + objeto atualizado |
 | `DELETE` | `/:id` | remove um produto | `200` + `{ "mensagem": "Produto removido." }` |
 
-### Exemplos
-
-**Criar produto**
-
-```bash
-curl -X POST http://localhost:3000/api/products \
-  -H "Content-Type: application/json" \
-  -d '{
-    "barcode": "7891000100103",
-    "name": "Leite Condensado",
-    "brand": "Moça",
-    "nutriScore": "e",
-    "novaGroup": 4,
-    "rating": 4,
-    "note": "Muito doce, mas combina com sobremesa"
-  }'
-```
-
-**Listar**
-
-```bash
-curl http://localhost:3000/api/products
-```
-
-**Atualizar** (só os campos enviados são alterados)
-
-```bash
-curl -X PUT http://localhost:3000/api/products/COLE_O_ID_AQUI \
-  -H "Content-Type: application/json" \
-  -d '{ "rating": 2, "note": "muito açúcar" }'
-```
-
-**Remover**
-
-```bash
-curl -X DELETE http://localhost:3000/api/products/COLE_O_ID_AQUI
-```
-
-### Formato dos erros
-
-Todas as falhas respondem no mesmo formato, o que simplifica o tratamento no app:
-
-```json
-{ "erro": "Produto não encontrado." }
-```
-
-| Situação | Status | Corpo |
-|---|---|---|
-| `barcode` ausente ou inválido | `400` | `{ "erro": "..." }` |
-| `rating` fora de 1–5 | `400` | `{ "erro": "..." }` |
-| id com formato inválido | `400` | `{ "erro": "Id inválido." }` |
-| id inexistente | `404` | `{ "erro": "Produto não encontrado." }` |
-| código de barras já cadastrado | `400` | `{ "erro": "E11000 duplicate key ..." }` |
-
----
-
-## Modelo de dados
-
-Um único documento, `Product`, na coleção `products`:
-
-| Campo | Tipo | Regra |
-|---|---|---|
-| `barcode` | String | **obrigatório**, 8 a 14 dígitos, **único** |
-| `name` | String | nome do produto |
-| `brand` | String | marca |
-| `quantity` | String | ex.: `395 g` |
-| `imageUrl` | String | URL da foto (o app não envia imagem, só o link) |
-| `nutriScore` | String | `a`, `b`, `c`, `d`, `e` ou `unknown` |
-| `novaGroup` | Number | 1 a 4 (grau de processamento) |
-| `nutriments` | Objeto | 8 valores por 100 g: calorias, carboidratos, açúcares, gorduras, gordura saturada, proteínas, fibras e sal |
-| `ingredients` | String | lista de ingredientes |
-| `allergens` | [String] | ex.: `["leite", "soja"]` |
-| `note` | String | anotação pessoal, até 280 caracteres |
-| `rating` | Number | nota de 1 a 5 |
-| `createdAt` / `updatedAt` | Date | gerados automaticamente |
-
-O campo `barcode` tem **índice único**: o mesmo produto não pode ser salvo duas vezes,
-e a API responde `400` na segunda tentativa.
-
----
-
-## Decisões técnicas
-
-**`PUT` em vez de `PATCH`.** O `PUT` recebe só os campos que mudaram e devolve o documento já
-atualizado, o que atende ao uso do app sem complicar.
-
-**`runValidators: true` no update.** Por padrão o Mongoose **não** valida campos em
-`findByIdAndUpdate`. Sem essa opção, seria possível gravar `rating: 9` e furar a regra do schema.
-
-**Sem upload de imagem.** O app guarda apenas a URL da imagem vinda da Open Food Facts, então
-o corpo das requisições é pequeno e não há necessidade de limite maior no `express.json()`.
-
-**Erros centralizados no controller.** Cada handler tem seu `try/catch` e devolve o mesmo
-formato `{ erro }`, então o app trata qualquer falha com um único caminho de código.
-
----
-
-## Problemas comuns
-
-| Mensagem | Causa | Solução |
-|---|---|---|
-| `MongooseServerSelectionError` / timeout | IP não liberado | Atlas → Network Access → *Add Current IP Address* |
-| `bad auth : Authentication failed` | usuário/senha errados | confira `Database Access`; se a senha tiver `@ : / ? # %`, gere uma sem símbolos |
-| `querySrv ECONNREFUSED` | o DNS da sua rede não responde consultas SRV | use a URI com os três hosts explícitos (abaixo) |
-| Dados não aparecem no Atlas | URI sem o nome do banco | acrescente `/rotulo` antes do `?` |
-| Conexão para "do nada" | cluster M0 pausou por inatividade | painel do Atlas → *Resume* |
-
-### Alternativa sem SRV (redes com DNS restrito)
-
-Se o driver reclamar de `querySrv`, use o formato longo — ele dispensa consulta DNS e funciona
-em qualquer rede. No painel do Atlas, clique em **Connect → Drivers** e escolha a opção de
-**conexão direta**, ou monte a string assim:
-
-```
-mongodb://USUARIO:SENHA@HOST-00:27017,HOST-01:27017,HOST-02:27017/rotulo?ssl=true&replicaSet=SEU_REPLICA_SET&authSource=admin&retryWrites=true&w=majority
-```
-
-Os três hosts, o `replicaSet` e o `authSource=admin` aparecem no próprio resultado de
-*Connect → Drivers*. Os parâmetros `ssl=true` e `authSource=admin` são **obrigatórios** nesse formato.
-
----
-
-## Segurança
-
-O arquivo `.env` contém usuário e senha do banco e **está no `.gitignore`**. Ele nunca vai para o
-repositório — o que fica versionado é apenas o `.env.example`, sem valores reais.
-
-Antes de qualquer `git push`, confirme:
-
-```bash
-git status --short
-```
-
-O `.env` não deve aparecer na lista.
-
----
 
 ## Repositórios da entrega
 
 - **Backend (este repositório):** `https://github.com/SEU-USUARIO/mercadinho-inteligente-api`
 - **Frontend (React Native + Expo):** `https://github.com/SEU-USUARIO/mercadinho-inteligente-app`
 
----
-
-## Autor
-
-**José Valdir** — Análise e Desenvolvimento de Sistemas
