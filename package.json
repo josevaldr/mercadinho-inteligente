@@ -1,0 +1,35 @@
+{
+  "name": "mercadinho-inteligente-api",
+  "version": "1.0.0",
+  "description": "API REST do app Mercadinho Inteligente - CRUD de produtos com Node.js, Express e MongoDB",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/josevaldr/mercadinho-inteligente.git"
+  },
+  "keywords": [
+    "api",
+    "express",
+    "mongodb",
+    "mongoose",
+    "crud"
+  ],
+  "author": "José Valdir",
+  "license": "MIT",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/josevaldr/mercadinho-inteligente/issues"
+  },
+  "homepage": "https://github.com/josevaldr/mercadinho-inteligente#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "mongoose": "^9.13.0"
+  }
+}
