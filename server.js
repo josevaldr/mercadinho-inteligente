@@ -8,6 +8,7 @@ const productRoutes = require('./src/routes/productRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
 
 
 app.use(cors());
@@ -20,7 +21,7 @@ app.use('/api/products', productRoutes);
 
 
 conectarBanco().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Servidor rodando em http://localhost:${PORT}`);
+  app.listen(PORT, HOST, () => {
+    console.log(`Servidor rodando em http://${HOST}:${PORT}`);
   });
 });

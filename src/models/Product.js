@@ -33,6 +33,7 @@ const productSchema = new mongoose.Schema(
     allergens: { type: [String], default: [] },
     note: { type: String, maxlength: 280, default: '' },
     rating: { type: Number, min: 1, max: 5, default: null },
+    favorite: { type: Boolean, default: false },
   },
   { timestamps: true },
 );
