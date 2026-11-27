@@ -105,5 +105,5 @@ Resposta: `{"mensagem":"API do Mercadinho no ar!"}`
 
 ## Repositórios da entrega
 
-- **Backend (este repositório):** `https://github.com/SEU-USUARIO/mercadinho-inteligente-api`
-- **Frontend (React Native + Expo):** `https://github.com/SEU-USUARIO/mercadinho-inteligente-frontend`
+- **Backend (este repositório):** `https://github.com/josevaldr/mercadinho-inteligente-api`
+- **Frontend (React Native + Expo):** `https://github.com/josevaldr/mercadinho-inteligente-frontend`
